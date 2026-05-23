@@ -199,7 +199,7 @@ const TAG_COLORS = {
           const dateStr = new Date(post.data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
           return (
             <a
-              href={`/blog/${post.slug}`}
+              href={`/blog/${post.id}`}
               class="post-card"
               data-tag={post.data.tag}
               style={`border-left-color:${tc.text};`}
