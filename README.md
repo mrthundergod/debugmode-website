@@ -81,3 +81,4 @@ Every `git push` to main auto-deploys. Takes ~30 seconds.
 In Vercel: Project → Settings → Domains → Add `debugmode.dev`
 Then update your domain's DNS to point to Vercel's nameservers.
 # debug
+# debug
