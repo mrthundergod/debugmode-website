@@ -1,0 +1,159 @@
+---
+import BaseLayout from './BaseLayout.astro';
+
+export interface Props {
+  title: string;
+  date: string;
+  tag: string;
+  type: 'debug' | 'buildlog';
+  broke?: string;
+  tried?: string;
+  fixed?: string;
+  readTime?: string;
+}
+
+const { title, date, tag, type, broke, tried, fixed, readTime = '5 min read' } = Astro.props;
+
+const formattedDate = new Date(date).toLocaleDateString('en-US', {
+  year: 'numeric', month: 'long', day: 'numeric',
+});
+---
+
+<BaseLayout title={title}>
+  <article class="max-w-3xl mx-auto px-6 py-12">
+
+    <header class="mb-10">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="tag-badge" data-tag={tag}>{tag}</span>
+        <span class="text-xs text-text-dim font-mono">{type === 'debug' ? '// debug post' : '// build log'}</span>
+        <span class="text-xs text-text-dim font-mono ml-auto">{formattedDate} · {readTime}</span>
+      </div>
+
+      <h1 class="font-display text-2xl font-bold text-text leading-tight mb-6">{title}</h1>
+
+      {type === 'debug' && broke && (
+        <div class="border border-border rounded overflow-hidden mb-2">
+          <div style="background:#0f0f0f;border-bottom:1px solid #1a1a1a;padding:0.5rem 1rem;display:flex;align-items:center;gap:0.5rem;">
+            <span class="w-2 h-2 rounded-full bg-red-500"></span>
+            <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+            <span class="w-2 h-2 rounded-full bg-green-500"></span>
+            <span class="text-xs text-text-dim font-mono ml-2">debug_session.log</span>
+          </div>
+          <div class="p-4 font-mono text-sm space-y-3">
+            {broke && (
+              <div class="flex gap-3">
+                <span class="text-red-400 font-bold shrink-0">BROKE</span>
+                <span class="text-text-muted">{broke}</span>
+              </div>
+            )}
+            {tried && (
+              <div class="flex gap-3">
+                <span class="text-yellow-400 font-bold shrink-0">TRIED</span>
+                <span class="text-text-muted">{tried}</span>
+              </div>
+            )}
+            {fixed && (
+              <div class="flex gap-3">
+                <span class="text-accent font-bold shrink-0">FIXED</span>
+                <span class="text-text-muted">{fixed}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {type === 'buildlog' && (
+        <div class="border-l-2 border-accent pl-4 py-1 mb-2">
+          <span class="text-xs text-text-dim font-mono">// build log — chronological notes</span>
+        </div>
+      )}
+    </header>
+
+    <div class="prose-debugmode">
+      <slot />
+    </div>
+
+    <footer class="mt-12 pt-6 border-t border-border">
+      <a href="/blog" class="text-xs text-text-dim hover:text-accent font-mono transition-colors no-underline">← back to blog</a>
+    </footer>
+
+  </article>
+</BaseLayout>
+
+<style>
+  .prose-debugmode {
+    font-family: 'Geist Mono', monospace;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #8888a0;
+  }
+
+  .prose-debugmode :global(h2) {
+    font-family: 'Fragment Mono', monospace;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #e8e8ee;
+    margin: 2rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #1a1a1a;
+  }
+
+  .prose-debugmode :global(h3) {
+    font-family: 'Fragment Mono', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #e8e8ee;
+    margin: 1.5rem 0 0.75rem;
+  }
+
+  .prose-debugmode :global(p) {
+    margin-bottom: 1.25rem;
+    color: #8888a0;
+  }
+
+  .prose-debugmode :global(strong) {
+    color: #e8e8ee;
+    font-weight: 500;
+  }
+
+  .prose-debugmode :global(a) {
+    color: #00b32c;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(0,179,44,0.3);
+    transition: border-color 0.15s;
+  }
+
+  .prose-debugmode :global(a:hover) {
+    border-color: #00b32c;
+  }
+
+  .prose-debugmode :global(ul), .prose-debugmode :global(ol) {
+    margin: 1rem 0 1.25rem 1.5rem;
+    color: #8888a0;
+  }
+
+  .prose-debugmode :global(li) {
+    margin-bottom: 0.4rem;
+  }
+
+  .prose-debugmode :global(blockquote) {
+    border-left: 2px solid #00b32c;
+    padding-left: 1rem;
+    color: #555566;
+    margin: 1.5rem 0;
+    font-style: italic;
+  }
+
+  .prose-debugmode :global(hr) {
+    border: none;
+    border-top: 1px solid #1a1a1a;
+    margin: 2rem 0;
+  }
+
+  .prose-debugmode :global(img) {
+    border-radius: 4px;
+    border: 1px solid #1a1a1a;
+    max-width: 100%;
+    margin: 1.5rem 0;
+  }
+</style>

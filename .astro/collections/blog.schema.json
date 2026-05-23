@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string"
+    },
+    "tag": {
+      "type": "string",
+      "enum": [
+        "linux",
+        "gaming",
+        "retro",
+        "hardware",
+        "software",
+        "random"
+      ]
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "debug",
+        "buildlog"
+      ]
+    },
+    "broke": {
+      "type": "string"
+    },
+    "tried": {
+      "type": "string"
+    },
+    "fixed": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "readTime": {
+      "type": "string"
+    },
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "date",
+    "tag",
+    "type"
+  ]
+}

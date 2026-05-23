@@ -1,0 +1,114 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog')).sort(
+  (a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf()
+);
+---
+
+<BaseLayout title="Blog" description="All posts from Debug Mode — linux, gaming, retro, hardware, software and random tinkering notes.">
+  <div class="max-w-5xl mx-auto px-6 py-12">
+
+    <div class="section-header mb-8">
+      <span class="text-xs font-mono text-text-dim uppercase tracking-widest">// all posts</span>
+      <span class="text-xs text-accent font-mono">ls -lt ./blog/</span>
+      <span class="text-xs text-text-dim font-mono ml-auto" id="post-count">{posts.length} entries</span>
+    </div>
+
+    <!-- Tag filter -->
+    <div class="flex flex-wrap gap-2 mb-10" role="group" aria-label="Filter posts by tag">
+      <button class="tag-pill active" data-tag="all" onclick="filterPosts('all')">all</button>
+      <button class="tag-pill" data-tag="linux" onclick="filterPosts('linux')">linux</button>
+      <button class="tag-pill" data-tag="gaming" onclick="filterPosts('gaming')">gaming</button>
+      <button class="tag-pill" data-tag="retro" onclick="filterPosts('retro')">retro</button>
+      <button class="tag-pill" data-tag="hardware" onclick="filterPosts('hardware')">hardware</button>
+      <button class="tag-pill" data-tag="software" onclick="filterPosts('software')">software</button>
+      <button class="tag-pill" data-tag="random" onclick="filterPosts('random')">random</button>
+    </div>
+
+    <!-- Posts list -->
+    <div class="space-y-px" id="posts-list">
+      {posts.map((post) => (
+        <a
+          href={`/blog/${post.slug}`}
+          class="post-card flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-6 no-underline group"
+          data-tag={post.data.tag}
+        >
+          <span class="text-xs text-text-dim font-mono shrink-0 mt-0.5">
+            {new Date(post.data.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+          </span>
+
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="tag-badge" data-tag={post.data.tag}>{post.data.tag}</span>
+              <span class="text-xs text-text-dim font-mono">
+                {post.data.type === 'debug' ? '// debug' : '// buildlog'}
+              </span>
+            </div>
+            <h2 class="font-mono text-sm font-medium text-text leading-snug group-hover:text-accent transition-colors mb-1">
+              {post.data.title}
+            </h2>
+            {post.data.type === 'debug' && post.data.broke && (
+              <p class="text-xs text-text-dim font-mono">
+                <span class="text-red-400 font-bold">BROKE:</span> {post.data.broke}
+              </p>
+            )}
+            {post.data.type === 'buildlog' && post.data.description && (
+              <p class="text-xs text-text-dim font-mono">
+                <span class="text-accent font-bold">LOG:</span> {post.data.description}
+              </p>
+            )}
+          </div>
+
+          <span class="text-xs text-text-dim font-mono shrink-0">{post.data.readTime ?? '5 min'}</span>
+        </a>
+      ))}
+    </div>
+
+    <div class="hidden text-center py-16 text-text-dim font-mono text-sm" id="no-results">
+      // no posts found for that tag yet.
+    </div>
+
+  </div>
+</BaseLayout>
+
+<style>
+  .tag-pill {
+    background: transparent;
+    font-family: 'Geist Mono', monospace;
+    cursor: pointer;
+    border: 1px solid #1a1a1a;
+    color: #555566;
+    transition: all 0.15s;
+  }
+  .tag-pill[data-tag="all"] { color: #8888a0; border-color: #252525; }
+  .tag-pill[data-tag="all"].active { color: #e8e8ee; border-color: #555; background: rgba(255,255,255,0.04); }
+</style>
+
+<script>
+  function filterPosts(tag: string) {
+    const pills = document.querySelectorAll<HTMLElement>('.tag-pill');
+    const cards = document.querySelectorAll<HTMLElement>('.post-card');
+    const count = document.getElementById('post-count');
+    const noResults = document.getElementById('no-results');
+    const list = document.getElementById('posts-list');
+
+    pills.forEach(p => p.classList.remove('active'));
+    document.querySelector<HTMLElement>(`.tag-pill[data-tag="${tag}"]`)?.classList.add('active');
+
+    let visible = 0;
+    cards.forEach(card => {
+      const show = tag === 'all' || card.dataset.tag === tag;
+      card.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+
+    if (count) count.textContent = `${visible} ${visible === 1 ? 'entry' : 'entries'}`;
+    if (noResults) noResults.classList.toggle('hidden', visible > 0);
+    if (noResults) noResults.classList.toggle('block', visible === 0);
+    if (list) list.style.display = visible === 0 ? 'none' : '';
+  }
+
+  (window as any).filterPosts = filterPosts;
+</script>

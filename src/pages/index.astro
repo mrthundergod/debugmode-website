@@ -1,0 +1,296 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog')).sort(
+  (a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf()
+).slice(0, 6);
+
+const YOUTUBE_VIDEO_ID = 'dQw4w9WgXcQ';
+const YOUTUBE_CHANNEL = 'https://www.youtube.com/@debugmode4life';
+
+const TAG_COLORS = {
+  linux:    { text: '#00b32c', bg: 'rgba(0,179,44,0.08)',    border: 'rgba(0,179,44,0.25)'    },
+  gaming:   { text: '#b48eff', bg: 'rgba(180,142,255,0.08)', border: 'rgba(180,142,255,0.25)' },
+  retro:    { text: '#ffb347', bg: 'rgba(255,179,71,0.08)',   border: 'rgba(255,179,71,0.25)'  },
+  hardware: { text: '#ff4d6a', bg: 'rgba(255,77,106,0.08)',   border: 'rgba(255,77,106,0.25)'  },
+  software: { text: '#4da6ff', bg: 'rgba(77,166,255,0.08)',   border: 'rgba(77,166,255,0.25)'  },
+  random:   { text: '#888899', bg: 'rgba(136,136,153,0.08)',  border: 'rgba(136,136,153,0.25)' },
+};
+---
+
+<BaseLayout>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fragment+Mono&family=Geist+Mono:wght@300;400;500;700&family=JetBrains+Mono:wght@300;400;500;700&display=swap');
+
+  * { box-sizing: border-box; }
+
+  .page { background: #0a0a0a; color: #e8e8ee; font-family: 'Geist Mono', monospace; }
+
+  /* Hero */
+  .hero { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; padding: 3.5rem 0; }
+  @media (max-width: 768px) { .hero { grid-template-columns: 1fr; gap: 2rem; } }
+
+  .site-name { font-family: 'Fragment Mono', monospace; font-size: 3rem; font-weight: 700; color: #e8e8ee; line-height: 1; letter-spacing: -2px; margin: 0 0 0.25rem; }
+  .site-name .accent { color: #00b32c; }
+
+  .glitch-label { font-size: 0.7rem; color: #555566; font-family: 'Geist Mono', monospace; margin-bottom: 0.375rem; }
+  .glitch-word { font-family: 'Fragment Mono', monospace; font-size: 1.5rem; font-weight: 700; color: #00b32c; margin: 0 0 1.5rem; }
+
+  .socials { display: flex; gap: 0.625rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .social-btn { font-size: 0.7rem; border: 1px solid #1a1a1a; color: #555566; font-family: 'Geist Mono', monospace; padding: 0.375rem 0.75rem; border-radius: 4px; text-decoration: none; transition: all 0.15s; background: transparent; cursor: pointer; }
+  .social-btn:hover { border-color: #00b32c; color: #00b32c; }
+  .social-btn.yt { border-color: rgba(248,113,113,0.3); color: #f87171; }
+  .social-btn.yt:hover { border-color: #f87171; color: #fca5a5; }
+
+  .stack-note { font-size: 0.65rem; color: #2a2a3a; font-family: 'Geist Mono', monospace; }
+
+  /* YouTube embed */
+  .yt-wrap { border: 1px solid #1a1a1a; border-radius: 6px; overflow: hidden; background: #0f0f0f; }
+  .yt-label { font-size: 0.65rem; color: #555566; font-family: 'Geist Mono', monospace; margin-bottom: 0.625rem; display: flex; align-items: center; gap: 0.375rem; }
+  .yt-embed { aspect-ratio: 16/9; background: #0f0f0f; }
+  .yt-embed iframe { width: 100%; height: 100%; display: block; border: none; }
+  .yt-footer { padding: 0.625rem 0.875rem; border-top: 1px solid #1a1a1a; display: flex; align-items: center; justify-content: space-between; }
+
+  /* Divider */
+  .divider { border: none; border-top: 1px solid #1a1a1a; margin: 0; }
+
+  /* Posts section */
+  .posts-section { padding: 2.5rem 0; }
+
+  .section-header { display: flex; align-items: baseline; gap: 0.75rem; padding-bottom: 0.75rem; border-bottom: 1px solid #1a1a1a; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .section-label { font-size: 0.65rem; color: #555566; font-family: 'Geist Mono', monospace; text-transform: uppercase; letter-spacing: 0.1em; }
+  .section-cmd { font-size: 0.75rem; color: #00b32c; font-family: 'Geist Mono', monospace; }
+  .section-count { font-size: 0.65rem; color: #555566; font-family: 'Geist Mono', monospace; margin-left: auto; }
+
+  /* Tag filter */
+  .tag-filter { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.75rem; }
+  .tag-btn { font-family: 'Geist Mono', monospace; font-size: 0.7rem; padding: 0.3rem 0.75rem; border-radius: 3px; border: 1px solid #1a1a1a; background: transparent; color: #555566; cursor: pointer; transition: all 0.15s; }
+  .tag-btn::before { content: '#'; opacity: 0.6; }
+  .tag-btn[data-tag="all"]::before { content: ''; }
+  .tag-btn[data-tag="all"] { color: #8888a0; border-color: #252525; }
+  .tag-btn[data-tag="all"].active { color: #e8e8ee; border-color: #555; background: rgba(255,255,255,0.04); }
+  .tag-btn[data-tag="linux"]  { color: #00b32c44; border-color: #00b32c22; }
+  .tag-btn[data-tag="gaming"] { color: #b48eff44; border-color: #b48eff22; }
+  .tag-btn[data-tag="retro"]  { color: #ffb34744; border-color: #ffb34722; }
+  .tag-btn[data-tag="hardware"]{ color: #ff4d6a44; border-color: #ff4d6a22; }
+  .tag-btn[data-tag="software"]{ color: #4da6ff44; border-color: #4da6ff22; }
+  .tag-btn[data-tag="random"] { color: #88889944; border-color: #88889922; }
+  .tag-btn[data-tag="linux"].active  { color: #00b32c; border-color: rgba(0,179,44,0.4); background: rgba(0,179,44,0.07); }
+  .tag-btn[data-tag="gaming"].active { color: #b48eff; border-color: rgba(180,142,255,0.4); background: rgba(180,142,255,0.07); }
+  .tag-btn[data-tag="retro"].active  { color: #ffb347; border-color: rgba(255,179,71,0.4); background: rgba(255,179,71,0.07); }
+  .tag-btn[data-tag="hardware"].active{ color: #ff4d6a; border-color: rgba(255,77,106,0.4); background: rgba(255,77,106,0.07); }
+  .tag-btn[data-tag="software"].active{ color: #4da6ff; border-color: rgba(77,166,255,0.4); background: rgba(77,166,255,0.07); }
+  .tag-btn[data-tag="random"].active { color: #888899; border-color: rgba(136,136,153,0.4); background: rgba(136,136,153,0.07); }
+
+  /* Posts grid */
+  .posts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #1a1a1a; border: 1px solid #1a1a1a; border-radius: 6px; overflow: hidden; }
+  @media (max-width: 900px) { .posts-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .posts-grid { grid-template-columns: 1fr; } }
+
+  .post-card { background: #0a0a0a; padding: 1.25rem; text-decoration: none; display: flex; flex-direction: column; gap: 0; transition: background 0.15s; border-left: 2px solid transparent; }
+  .post-card:hover { background: #0f0f0f; }
+
+  .post-card-meta { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.625rem; }
+  .post-tag-badge { font-size: 0.6rem; padding: 0.125rem 0.5rem; border-radius: 2px; font-family: 'Geist Mono', monospace; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; flex-shrink: 0; }
+  .post-type { font-size: 0.6rem; color: #2a2a3a; font-family: 'Geist Mono', monospace; }
+  .post-date { font-size: 0.6rem; color: #2a2a3a; font-family: 'Geist Mono', monospace; margin-left: auto; }
+
+  .post-title { font-family: 'Geist Mono', monospace; font-size: 0.8rem; font-weight: 500; color: #e8e8ee; line-height: 1.45; margin-bottom: 0.5rem; flex: 1; }
+  .post-card:hover .post-title { color: #00b32c; }
+
+  .post-broke { font-size: 0.65rem; color: #555566; font-family: 'Geist Mono', monospace; line-height: 1.5; margin-bottom: 0.875rem; }
+  .broke-label { font-weight: 700; }
+
+  .post-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+  .post-readtime { font-size: 0.6rem; color: #2a2a3a; font-family: 'Geist Mono', monospace; }
+  .post-arrow { font-size: 0.75rem; color: #2a2a3a; transition: all 0.15s; font-family: 'Geist Mono', monospace; }
+  .post-card:hover .post-arrow { color: #00b32c; transform: translateX(3px); }
+
+  .no-results { display: none; text-align: center; padding: 3rem; color: #2a2a3a; font-family: 'Geist Mono', monospace; font-size: 0.8rem; }
+  .no-results.visible { display: block; }
+
+  .view-all { display: flex; justify-content: center; margin-top: 1.5rem; }
+  .view-all-btn { font-family: 'Geist Mono', monospace; font-size: 0.75rem; border: 1px solid #252525; color: #8888a0; padding: 0.5rem 1.25rem; border-radius: 4px; text-decoration: none; transition: all 0.15s; background: transparent; }
+  .view-all-btn:hover { border-color: #00b32c; color: #00b32c; background: rgba(0,179,44,0.05); }
+</style>
+
+<div class="page">
+  <div style="max-width:80rem;margin:0 auto;padding:0 1.5rem;">
+
+    <!-- HERO -->
+    <div class="hero">
+
+      <!-- Left: Identity -->
+      <div>
+        <div style="font-size:0.65rem;color:#555566;font-family:'Geist Mono',monospace;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+          <span style="color:#00b32c;">$</span> cat /home/mrthundergod/about.txt
+        </div>
+
+        <h1 class="site-name">Debug<span class="accent">Mode</span></h1>
+        <p style="font-size:0.65rem;color:#555566;font-family:'Geist Mono',monospace;margin:0.25rem 0 1.5rem;">mrthundergod · debugmode.dev</p>
+
+        <p style="font-size:0.8rem;color:#8888a0;font-family:'Geist Mono',monospace;line-height:1.75;margin-bottom:1.75rem;max-width:26rem;">
+          Raw notes from the terminal. A tinkerer's public notebook.<br/>
+          No fluff — just what broke, what I tried, and what actually worked.
+        </p>
+
+        <div class="glitch-label">// i tinker with</div>
+        <p class="glitch-word" id="glitch-word">linux</p>
+
+        <div class="socials">
+          <a href="https://github.com/mrthundergod" target="_blank" rel="noopener noreferrer" class="social-btn">github</a>
+          <a href="https://www.instagram.com/debug.m0de" target="_blank" rel="noopener noreferrer" class="social-btn">instagram</a>
+          <a href={YOUTUBE_CHANNEL} target="_blank" rel="noopener noreferrer" class="social-btn yt">youtube ↗</a>
+        </div>
+
+        <p class="stack-note">// running CachyOS · Astro + Tailwind · Vercel</p>
+      </div>
+
+      <!-- Right: YouTube embed -->
+      <div>
+        <div class="yt-label">
+          <span style="color:#f87171;">▶</span> latest video
+        </div>
+        <div class="yt-wrap">
+          <div class="yt-embed">
+            <iframe
+              src={`https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}`}
+              title="Latest video — mrthundergod"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              loading="lazy"
+            ></iframe>
+          </div>
+          <div class="yt-footer">
+            <span style="font-size:0.65rem;color:#555566;font-family:'Geist Mono',monospace;">youtube.com/@debugmode4life</span>
+            <a href={YOUTUBE_CHANNEL} target="_blank" rel="noopener noreferrer"
+               style="font-size:0.65rem;color:#f87171;text-decoration:none;font-family:'Geist Mono',monospace;">view channel ↗</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <hr class="divider" />
+
+    <!-- POSTS -->
+    <div class="posts-section">
+
+      <div class="section-header">
+        <span class="section-label">// latest posts</span>
+        <span class="section-cmd">ls -lt ./blog/ | head</span>
+        <span class="section-count" id="post-count">{posts.length} entries</span>
+      </div>
+
+      <div class="tag-filter" role="group" aria-label="Filter posts by tag">
+        <button class="tag-btn active" data-tag="all">all</button>
+        <button class="tag-btn" data-tag="linux">linux</button>
+        <button class="tag-btn" data-tag="gaming">gaming</button>
+        <button class="tag-btn" data-tag="retro">retro</button>
+        <button class="tag-btn" data-tag="hardware">hardware</button>
+        <button class="tag-btn" data-tag="software">software</button>
+        <button class="tag-btn" data-tag="random">random</button>
+      </div>
+
+      <div class="posts-grid" id="posts-grid">
+        {posts.map((post) => {
+          const tc = TAG_COLORS[post.data.tag] ?? TAG_COLORS.random;
+          const dateStr = new Date(post.data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          return (
+            <a
+              href={`/blog/${post.slug}`}
+              class="post-card"
+              data-tag={post.data.tag}
+              style={`border-left-color:${tc.text};`}
+            >
+              <div class="post-card-meta">
+                <span class="post-tag-badge" style={`color:${tc.text};background:${tc.bg};border:1px solid ${tc.border};`}>
+                  {post.data.tag}
+                </span>
+                <span class="post-type">{post.data.type === 'debug' ? '// debug' : '// log'}</span>
+                <span class="post-date">{dateStr}</span>
+              </div>
+
+              <div class="post-title">{post.data.title}</div>
+
+              {post.data.type === 'debug' && post.data.broke && (
+                <div class="post-broke">
+                  <span class="broke-label" style="color:#ff4d6a;">BROKE:</span> {post.data.broke}
+                </div>
+              )}
+              {post.data.type === 'buildlog' && post.data.description && (
+                <div class="post-broke">
+                  <span class="broke-label" style="color:#00b32c;">LOG:</span> {post.data.description}
+                </div>
+              )}
+
+              <div class="post-footer">
+                <span class="post-readtime">{post.data.readTime ?? '5 min read'}</span>
+                <span class="post-arrow">→</span>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+
+      <div class="no-results" id="no-results">// no posts found for that tag yet.</div>
+
+      <div class="view-all">
+        <a href="/blog" class="view-all-btn">$ ls ./blog --all</a>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const interests = ['linux', 'gaming', 'retro', 'hardware', 'software', 'random stuff'];
+  const chars = 'ABCDEFx01!@#$%^&*<>/\\|{}[]?';
+  let idx = 0, frame = 0;
+
+  function glitch() {
+    const el = document.getElementById('glitch-word');
+    if (!el) return;
+    const target = interests[idx];
+    if (frame < 10) {
+      let s = '';
+      for (let i = 0; i < target.length; i++) s += chars[Math.floor(Math.random() * chars.length)];
+      el.textContent = s;
+      el.style.color = frame % 2 === 0 ? '#00b32c' : '#009922';
+    } else {
+      el.textContent = target;
+      el.style.color = '#00b32c';
+    }
+    frame++;
+    if (frame > 20) { frame = 0; idx = (idx + 1) % interests.length; setTimeout(glitch, 2200); return; }
+    setTimeout(glitch, frame < 10 ? 55 : 80);
+  }
+  glitch();
+
+  document.querySelectorAll('.tag-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tag = (btn as HTMLElement).dataset.tag ?? 'all';
+      document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const cards = document.querySelectorAll<HTMLElement>('.post-card');
+      const grid = document.getElementById('posts-grid');
+      const noResults = document.getElementById('no-results');
+      const count = document.getElementById('post-count');
+
+      let visible = 0;
+      cards.forEach(card => {
+        const show = tag === 'all' || card.dataset.tag === tag;
+        card.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+
+      if (count) count.textContent = `${visible} ${visible === 1 ? 'entry' : 'entries'}`;
+      if (grid) grid.style.display = visible === 0 ? 'none' : '';
+      if (noResults) noResults.classList.toggle('visible', visible === 0);
+    });
+  });
+</script>
+</BaseLayout>

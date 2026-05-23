@@ -1,0 +1,109 @@
+---
+import '../styles/global.css';
+
+export interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Debug Mode',
+  description = "mrthundergod's personal tech blog. Raw notes from the terminal — linux, gaming, hardware, retro, and whatever else breaks.",
+} = Astro.props;
+
+const currentPath = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="en" style="background:#0a0a0a">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate" type="application/rss+xml" title="Debug Mode RSS" href="/rss.xml" />
+    <title>{title === 'Debug Mode' ? title : `${title} — Debug Mode`}</title>
+    <style>
+      html, body {
+        background-color: #0a0a0a !important;
+        color: #e8e8ee !important;
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body style="background-color:#0a0a0a;color:#e8e8ee;min-height:100vh;">
+
+    <!-- NAV -->
+    <nav style="position:sticky;top:0;z-index:50;border-bottom:1px solid #1a1a1a;background:rgba(10,10,10,0.92);backdrop-filter:blur(12px);">
+      <div style="max-width:80rem;margin:0 auto;padding:0 1.5rem;height:3rem;display:flex;align-items:center;justify-content:space-between;">
+
+        <a href="/" style="display:flex;align-items:center;gap:0.5rem;text-decoration:none;">
+          <span style="font-family:'Fragment Mono',monospace;font-size:0.875rem;font-weight:700;color:#00b32c;">debug<span style="color:#555566;">mode</span></span>
+          <span style="color:#252525;font-size:1rem;">/</span>
+          <span style="font-size:0.75rem;color:#555566;font-family:'Geist Mono',monospace;">debugmode.dev</span>
+        </a>
+
+        <ul style="display:flex;align-items:center;list-style:none;gap:0.25rem;margin:0;padding:0;">
+          <li>
+            <a href="/" style={`padding:0.375rem 0.75rem;font-size:0.75rem;font-family:'Geist Mono',monospace;text-decoration:none;transition:color 0.15s;color:${currentPath === '/' ? '#00b32c' : '#8888a0'}`}>
+              <span style="color:#555566;">/</span>home
+            </a>
+          </li>
+          <li>
+            <a href="/blog" style={`padding:0.375rem 0.75rem;font-size:0.75rem;font-family:'Geist Mono',monospace;text-decoration:none;transition:color 0.15s;color:${currentPath.startsWith('/blog') ? '#00b32c' : '#8888a0'}`}>
+              <span style="color:#555566;">/</span>blog
+            </a>
+          </li>
+          <li>
+            <a href="https://www.youtube.com/@debugmode4life" target="_blank" rel="noopener noreferrer"
+               style="padding:0.375rem 0.75rem;font-size:0.75rem;font-family:'Geist Mono',monospace;text-decoration:none;color:#f87171;">
+              <span style="opacity:0.5;">/</span>youtube ↗
+            </a>
+          </li>
+          <li>
+            <a href="/contact" style={`padding:0.375rem 0.75rem;font-size:0.75rem;font-family:'Geist Mono',monospace;text-decoration:none;transition:color 0.15s;color:${currentPath === '/contact' ? '#00b32c' : '#8888a0'}`}>
+              <span style="color:#555566;">/</span>contact
+            </a>
+          </li>
+        </ul>
+
+        <div style="display:flex;align-items:center;gap:0.375rem;font-size:0.7rem;color:#2a2a3a;font-family:'Geist Mono',monospace;">
+          <span>mrthundergod@debug:~$</span>
+          <span style="display:inline-block;width:8px;height:14px;background:#00b32c;animation:blink 1s step-end infinite;vertical-align:middle;"></span>
+        </div>
+
+      </div>
+    </nav>
+
+    <!-- PAGE CONTENT -->
+    <main>
+      <slot />
+    </main>
+
+    <!-- FOOTER -->
+    <footer style="border-top:1px solid #1a1a1a;margin-top:4rem;">
+      <div style="max-width:80rem;margin:0 auto;padding:2rem 1.5rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem;">
+
+        <div style="font-family:'Geist Mono',monospace;font-size:0.7rem;color:#555566;line-height:1.6;">
+          © {new Date().getFullYear()} mrthundergod · debugmode.dev<br />
+          <span style="color:#2a2a3a;">built with Astro · deployed on Vercel</span>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:1.5rem;">
+          <a href="https://github.com/mrthundergod" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem;color:#555566;text-decoration:none;font-family:'Geist Mono',monospace;">github</a>
+          <a href="https://www.instagram.com/debug.m0de" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem;color:#555566;text-decoration:none;font-family:'Geist Mono',monospace;">instagram</a>
+          <a href="https://www.youtube.com/@debugmode4life" target="_blank" rel="noopener noreferrer" style="font-size:0.7rem;color:#f87171;text-decoration:none;font-family:'Geist Mono',monospace;">youtube</a>
+          <a href="/rss.xml" style="font-size:0.7rem;color:#555566;text-decoration:none;font-family:'Geist Mono',monospace;">rss</a>
+        </div>
+
+      </div>
+    </footer>
+
+    <style>
+      @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+    </style>
+
+  </body>
+</html>
